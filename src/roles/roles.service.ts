@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,23 +12,21 @@ export class RolesService {
     private roleRepository: Repository<Role>,
   ) { }
 
-  create(createRoleDto: CreateRoleDto) {
-    return this.roleRepository.save(createRoleDto);
+  async create(createRoleDto: CreateRoleDto) {
+    const roleExists = await this.roleRepository.findOne({ where: { role_name: createRoleDto.role_name } });
+    if (roleExists) {
+      throw new HttpException(`${createRoleDto.role_name} ya existe`, HttpStatus.CONFLICT);
+    }
+
+    const role = this.roleRepository.create(createRoleDto);
+    return await this.roleRepository.save(role);
   }
 
-  findAll() {
-    return `This action returns all roles`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
-  }
-
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async findAll() {
+    try {
+      return await this.roleRepository.find();
+    } catch (error) {
+      throw new HttpException("Error al obtener roles", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
