@@ -1,4 +1,4 @@
-import { IsDateString, IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { IsDate, IsNotEmpty, IsString, IsUUID } from "class-validator";
 
 export class CreateAppointmentDto {
     @IsUUID()
@@ -13,7 +13,7 @@ export class CreateAppointmentDto {
     @IsNotEmpty()
     reason: string;
 
-    @IsDateString()
+    @IsDate()
     @IsNotEmpty()
     datetime: Date;
 }

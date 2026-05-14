@@ -13,7 +13,10 @@ export class AppointmentsService {
   ) { }
 
   async create(clientId: string, createAppointmentDto: CreateAppointmentDto) {
-    const appointment = this.appointmentRepository.create(createAppointmentDto);
+    const appointment = this.appointmentRepository.create({
+      ...createAppointmentDto,
+      client_id: clientId,
+    });
     return await this.appointmentRepository.save(appointment);
   }
 

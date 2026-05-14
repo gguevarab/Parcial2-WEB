@@ -17,7 +17,7 @@ export class AppointmentsController {
   @Roles('user')
   @UseGuards(JwtAuthGuard, RolesGuard)
   create(@Req() req, @Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentsService.create(req.user.id, createAppointmentDto);
+    return this.appointmentsService.create(req.user.userId, createAppointmentDto);
   }
 
   // Get All appointments restricted to admin
@@ -33,7 +33,7 @@ export class AppointmentsController {
   @Roles('user')
   @UseGuards(JwtAuthGuard, RolesGuard)
   findOwnAppointments(@Req() req) {
-    return this.appointmentsService.findClientAppointments(req.user.id);
+    return this.appointmentsService.findClientAppointments(req.user.userId);
   }
 
   // Get doctor own appointments and patients appointments
@@ -41,7 +41,7 @@ export class AppointmentsController {
   @Roles('doctor')
   @UseGuards(JwtAuthGuard, RolesGuard)
   findDoctorAppointments(@Req() req) {
-    return this.appointmentsService.findDoctorAppointments(req.user.id);
+    return this.appointmentsService.findDoctorAppointments(req.user.userId);
   }
 
   // Update an appointment restricted to doctors
