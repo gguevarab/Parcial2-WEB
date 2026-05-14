@@ -1,7 +1,7 @@
 import { Role } from "src/roles/entities/role.entity";
-import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity('users')
 export class User {
     @PrimaryGeneratedColumn("uuid")
     id: string;
@@ -15,7 +15,7 @@ export class User {
     @Column()
     name: string;
 
-    @Column()
+    @Column({ nullable: true })
     phone?: string;
 
     @Column({ default: true })
@@ -25,5 +25,6 @@ export class User {
     created_at: Date;
 
     @ManyToMany(() => Role, (role) => role.users)
+    @JoinTable()
     roles: Role[];
 }

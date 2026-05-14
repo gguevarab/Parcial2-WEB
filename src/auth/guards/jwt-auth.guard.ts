@@ -11,7 +11,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest(err, user, info) {
     if (err || !user) {
       if (info?.name === 'JsonWebTokenError') {
-        throw new HttpException('Token inválido o faltante', HttpStatus.FORBIDDEN);
+        throw new HttpException('Token inválido o faltante', HttpStatus.UNAUTHORIZED);
       }
       throw new HttpException('No autorizado', HttpStatus.FORBIDDEN);
     }

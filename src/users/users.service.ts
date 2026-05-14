@@ -22,43 +22,51 @@ export class UsersService {
   }
 
   async findAll() {
-    const users = await this.userRepository.find()
-    if (!users) {
+    try {
+      const users = await this.userRepository.find({ relations: ['roles'] });
+      return users.map(user => {
+        delete (user as any).password;
+        return user;
+      });
+    } catch (error) {
       throw new HttpException('Error al listar usuarios', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return users;
   }
 
   async findOne(id: string) {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id }, relations: ['roles'] });
     if (!user) {
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
     }
+    delete (user as any).password;
     return user;
   }
 
   async findbyEmail(email: string) {
-    return await this.userRepository.findOne({ where: { email } });
+    return await this.userRepository.findOne({ where: { email }, relations: ['roles'] });
   }
 
-  async addRoles(userId: string, roles: Role[]) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+  async addRoles(userId: string, roleNames: string[]) {
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['roles'] });
     if (!user) {
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
     }
 
-    let areRolesValid = true;
-    for (const role of roles) {
-      const roleExists = await this.roleRepository.findOne({ where: { id: role.id } });
+    const rolesToAdd: Role[] = [];
+
+    for (const roleName of roleNames) {
+      const roleExists = await this.roleRepository.findOne({ where: { role_name: roleName } });
+
       if (!roleExists) {
-        areRolesValid = false;
-        break;
+        throw new HttpException('roles inválidos', HttpStatus.BAD_REQUEST);
       }
+
+      rolesToAdd.push(roleExists);
     }
-    if (!areRolesValid) {
-      throw new HttpException('Rol no encontrado', HttpStatus.NOT_FOUND);
-    }
-    user.roles = user.roles.concat(roles);
-    return await this.userRepository.save(user);
+
+    user.roles = rolesToAdd;
+    await this.userRepository.save(user);
+
+    return { message: 'Roles asignados' };
   }
 }
